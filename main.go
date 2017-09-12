@@ -2,15 +2,26 @@ package main
 
 import (
 	"fmt"
-	"html"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-	})
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	//retrieve a new mux router
+	router := mux.NewRouter().StrictSlash(true)
+
+	//add a index route to the router
+	router.HandleFunc("/", Index)
+
+	//listen and serve
+	//log errors
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+// Index - handle function for index route
+func Index(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Welcome!")
 }
