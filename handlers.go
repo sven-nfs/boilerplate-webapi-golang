@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -16,18 +16,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 // ModelIndex - handle function for public model route
 func ModelIndex(w http.ResponseWriter, r *http.Request) {
-
-	//grab this data from a db or whatever
-	ml := ModelList{
-		Model{ID: "0815-4223", Name: "random model 1", CreationDate: time.Now()},
-		Model{ID: "007-BOND", Name: "random model 2", CreationDate: time.Now()},
-	}
-
 	//set some header info
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(ml); err != nil {
+	if err := json.NewEncoder(w).Encode(models); err != nil {
 		panic(err)
 	}
 }
@@ -35,6 +28,23 @@ func ModelIndex(w http.ResponseWriter, r *http.Request) {
 // ModelDetail - handle function for public model detail route
 func ModelDetail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	modelID := vars["modelId"]
-	fmt.Fprintln(w, "model:", modelID)
+	modelID, err := strconv.Atoi(vars["modelId"])
+	model, err := Read(modelID)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusNoContent) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	//set some header info
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(model); err != nil {
+		panic(err)
+	}
 }
