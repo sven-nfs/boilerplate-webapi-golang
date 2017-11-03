@@ -32,4 +32,10 @@ var routes = Routes{
 		"/public/models/{modelId}",
 		ModelDetail,
 	},
+	Route{
+    	"ModelCreate",
+    	"POST",
+    	"/public/models",
+    	ModelCreate,
+	},
 }
